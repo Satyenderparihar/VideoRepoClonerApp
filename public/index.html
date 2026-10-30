@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Video-to-Repo Cloner | Android</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <style>
+    :root {
+      --bg: #090a10;
+      --card-bg: #131520;
+      --card-border: #1f2333;
+      --primary: #00f0ff;
+      --primary-glow: rgba(0, 240, 255, 0.25);
+      --accent: #7928ca;
+      --danger: #ff0055;
+      --danger-glow: rgba(255, 0, 85, 0.25);
+      --success: #00ff88;
+      --text: #f0f2f8;
+      --text-muted: #8b92a5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-bottom: 70px;
+    }
+
+    /* Header */
+    header {
+      background: rgba(19, 21, 32, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .brand h1 {
+      font-size: 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), #a777e3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gh-status {
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      color: var(--success);
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .gh-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--success);
+    }
+
+    /* Container */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 16px;
+      flex: 1;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 16px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(121, 40, 202, 0.2));
+      color: var(--primary);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    /* Tab Content Panels */
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      background: #0b0c14;
+      border: 1px solid #282c40;
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, input[type="url"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #00b4d8);
+      color: #050810;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-danger {
+      background: rgba(255, 0, 85, 0.15);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 8px 12px;
+      font-size: 12px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .btn-danger:active {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* File Drop Zone */
+    .drop-zone {
+      border: 2px dashed #282c40;
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      background: #0b0c14;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--primary);
+      background: rgba(0, 240, 255, 0.04);
+    }
+
+    .drop-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .badge-no-limit {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ff007f, #7928ca);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 12px;
+      margin-top: 6px;
+    }
+
+    /* Progress bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #1b1e2c;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.2s;
+    }
+
+    /* Candidate / Repo Item */
+    .repo-card {
+      background: #0d0e17;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .repo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .repo-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .repo-cat {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .repo-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .repo-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #a0a6b8;
+      border-top: 1px solid #1a1c29;
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    .repo-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .repo-links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Status Console */
+    .console-card {
+      background: #05060a;
+      border: 1px solid #1c1f2e;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #98a2b3;
+      max-height: 120px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    .log-line {
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+
+    .log-info { color: var(--primary); }
+    .log-success { color: var(--success); }
+    .log-error { color: var(--danger); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--danger);
+      border-radius: 14px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 10px 30px var(--danger-glow);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--danger);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 10px;
+      background: #202436;
+      border: none;
+      color: var(--text);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-confirm-delete {
+      flex: 1;
+      padding: 10px;
+      background: var(--danger);
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header>
+    <div class="brand">
+      <img src="/icon.svg" alt="App Icon">
+      <div>
+        <h1>Video-to-Repo Cloner</h1>
+      </div>
+    </div>
+    <div class="gh-status" id="ghStatus">
+      <div class="gh-dot"></div>
+      <span>@Satyenderparihar</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Tabs Navigation -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-link')">
+        <span>🔗 Link Scan</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-upload')">
+        <span>📁 Video Upload</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-repos')">
+        <span>🗂️ Repos (<span id="repoCount">0</span>)</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: Link Scan (Instagram Reel, YouTube, GitHub Link) -->
+    <div id="tab-link" class="tab-pane active">
+      <div class="card">
+        <div class="card-title">
+          <span>🎯 URL से Repo डिटेक्ट व क्लोन करें</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Instagram Reel, YouTube Shorts/Video, या direct GitHub रिपॉजिटरी लिंक पेस्ट करें:
+        </p>
+        <div class="input-group">
+          <input type="url" id="linkInput" placeholder="https://www.instagram.com/reel/... या github.com/..." autocomplete="off">
+          <button class="btn btn-primary" id="btnScanLink" onclick="scanUrl()">
+            <span>🔍 Scan & Find Repo</span>
+          </button>
+        </div>
+
+        <div id="linkCandidates" style="margin-top: 14px; display: none;"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Direct Video File Upload (No 20MB limit!) -->
+    <div id="tab-upload" class="tab-pane">
+      <div class="card">
+        <div class="card-title">
+          <span>📤 सीधे फोन से वीडियो अपलोड करें</span>
+          <span class="badge-no-limit">NO 20MB LIMIT ⚡</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Telegram की सीमा यहाँ लागू नहीं है! अपनी गैलरी से 50MB, 100MB+ का कोई भी वीडियो चुनें:
+        </p>
+
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="drop-icon">🎬</div>
+          <div style="font-size: 13px; font-weight: 600;" id="dropText">गैलरी / स्टोरेज से वीडियो चुनें</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">.mp4, .mov, .mkv, .webm supported</div>
+          <input type="file" id="fileInput" accept="video/*" style="display: none;" onchange="handleFileSelected(event)">
+        </div>
+
+        <div class="progress-bar-container" id="progressBarContainer">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <button class="btn btn-primary" id="btnUpload" style="display: none; margin-top: 10px;" onclick="uploadVideo()">
+          <span>⚡ अपलोड व Repo खोजें</span>
+        </button>
+
+        <div id="uploadCandidates" style="margin-top: 14px; display: none;"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Cloned Repositories Dashboard with 1-Click Delete Button -->
+    <div id="tab-repos" class="tab-pane">
+      <div class="card">
+        <div class="card-title" style="justify-content: space-between;">
+          <span>📦 आपके GitHub पर क्लोन की गई Repos</span>
+          <button style="background: none; border: none; color: var(--primary); font-size: 12px; cursor: pointer;" onclick="loadRepos()">🔄 रिफ्रेश</button>
+        </div>
+        <div id="repoList">
+          <div style="text-align: center; padding: 20px; font-size: 13px; color: var(--text-muted);">
+            लोड हो रहा है...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Real-time Console Log Drawer -->
+    <div class="card" style="margin-top: 6px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <span style="font-size: 12px; font-weight: 700; color: #a0a6b8;">⚡ रियल-टाइम स्टेटस कंसोल:</span>
+        <button style="background: none; border: none; color: #5a6275; font-size: 10px; cursor: pointer;" onclick="clearLogs()">कंसोल साफ़ करें</button>
+      </div>
+      <div class="console-card" id="consoleLogs">
+        <div class="log-line log-info">[✓] सिस्टम तैयार है। लिंक पेस्ट करें या वीडियो चुनें।</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-content">
+      <div class="modal-title">
+        <span>🗑️ Repo डिलीट की पुष्टि</span>
+      </div>
+      <p style="font-size: 13px; color: #c4cad8; line-height: 1.4;">
+        क्या आप वाकई <b id="deleteRepoName" style="color: var(--primary);"></b> को अपने GitHub अकाउंट (<b>Satyenderparihar</b>) और फोन स्टोरेज से तुरंत डिलीट करना चाहते हैं?
+      </p>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeDeleteModal()">रद्द करें</button>
+        <button class="btn-confirm-delete" onclick="executeDelete()">हाँ, डिलीट करें</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedFile = null;
+    let repoToDelete = null;
+
+    function log(msg, type = 'info') {
+      const box = document.getElementById('consoleLogs');
+      const div = document.createElement('div');
+      div.className = `log-line log-${type}`;
+      const time = new Date().toLocaleTimeString('en-IN');
+      div.innerText = `[${time}] ${msg}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById('consoleLogs').innerHTML = '<div class="log-line log-info">[✓] कंसोल तैयार है।</div>';
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+      if (tabId === 'tab-link') document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      if (tabId === 'tab-upload') document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      if (tabId === 'tab-repos') {
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
+        loadRepos();
+      }
+
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    // 1. Scan URL
+    async function scanUrl() {
+      const urlInput = document.getElementById('linkInput');
+      const url = urlInput.value.trim();
+      if (!url) {
+        alert('कृपया कोई वैध लिंक दर्ज करें!');
+        return;
+      }
+
+      const btn = document.getElementById('btnScanLink');
+      btn.disabled = true;
+      btn.innerText = '⏳ स्कैनिंग जारी...';
+      log(`स्कैन शुरू: ${url}`);
+
+      const resultsDiv = document.getElementById('linkCandidates');
+      resultsDiv.style.display = 'none';
+      resultsDiv.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+
+        if (data.success && data.repos && data.repos.length > 0) {
+          log(`✓ ${data.repos.length} रिपॉजिटरी मिली!`, 'success');
+          renderCandidates(data.repos, resultsDiv);
+        } else {
+          log(`⚠️ कोई रिपॉजिटरी लिंक नहीं मिला: ${data.error || 'विवरण में लिंक उपलब्ध नहीं है'}`, 'error');
+          resultsDiv.style.display = 'block';
+          resultsDiv.innerHTML = `
+            <div style="padding: 12px; background: rgba(255, 0, 85, 0.1); border: 1px solid var(--danger); border-radius: 10px; font-size: 13px; color: #ff6b8b;">
+              ⚠️ <b>कोई रिपॉजिटरी नहीं मिली:</b><br>${data.error || 'वीडियो में कोई GitHub लिंक नहीं दिखा।'}<br>
+              <span style="font-size: 11px; color: var(--text-muted);">टिप: यदि आपको रिपॉजिटरी का नाम पता है, तो सीधा GitHub लिंक पेस्ट करें।</span>
+            </div>
+          `;
+        }
+      } catch (err) {
+        log(`स्कैन एरर: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🔍 Scan & Find Repo';
+      }
+    }
+
+    // Render candidate repos
+    function renderCandidates(repos, container) {
+      container.style.display = 'block';
+      let html = '<div style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--primary);">🔎 मिली हुई रिपॉजिटरी:</div>';
+
+      repos.forEach(r => {
+        html += `
+          <div class="repo-card">
+            <div class="repo-header">
+              <span class="repo-name">${r.fullName || r.name}</span>
+              <span class="repo-cat">${r.category || 'General'}</span>
+            </div>
+            <div class="repo-desc">${r.description || 'No description available'}</div>
+            <div class="repo-meta">
+              <span>⭐ ${r.stars || 0} Stars</span>
+              <button class="btn btn-primary" style="width: auto; padding: 6px 14px; font-size: 12px;" onclick="cloneRepo('${r.owner}', '${r.name}')">
+                🚀 क्लोन करें
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // 2. Clone Repo
+    async function cloneRepo(owner, name) {
+      log(`क्लोन शुरू हो रहा है: ${owner}/${name}...`, 'info');
+      try {
+        const res = await fetch('/api/clone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ owner, name })
+        });
+        const data = await res.json();
+        if (data.success) {
+          log(`🎉 सफलता! ${name} आपके GitHub पर क्लोन हो गई: ${data.userRepoUrl}`, 'success');
+          alert(`🎉 सफलता!\n${name} आपके GitHub पर लाइव है:\n${data.userRepoUrl}`);
+          switchTab('tab-repos');
+        } else {
+          log(`❌ क्लोन विफल: ${data.error}`, 'error');
+          alert(`क्लोन विफल: ${data.error}`);
+        }
+      } catch (e) {
+        log(`नेटवर्क एरर: ${e.message}`, 'error');
+      }
+    }
+
+    // 3. File Selection & Upload
+    function handleFileSelected(e) {
+      if (e.target.files && e.target.files[0]) {
+        selectedFile = e.target.files[0];
+        const sizeMb = (selectedFile.size / 1024 / 1024).toFixed(1);
+        document.getElementById('dropText').innerHTML = `<b>${selectedFile.name}</b><br><span style="color: var(--primary); font-size: 12px;">आकार: ${sizeMb} MB</span>`;
+        document.getElementById('btnUpload').style.display = 'flex';
+        log(`फाइल चुनी गई: ${selectedFile.name} (${sizeMb} MB)`);
+      }
+    }
+
+    function uploadVideo() {
+      if (!selectedFile) return;
+
+      const btn = document.getElementById('btnUpload');
+      btn.disabled = true;
+      btn.innerText = '⏳ अपलोड हो रहा है...';
+
+      const progressContainer = document.getElementById('progressBarContainer');
+      const progressBar = document.getElementById('progressBar');
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/upload', true);
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          progressBar.style.width = percent + '%';
+          btn.innerText = `⏳ अपलोड हो रहा है (${percent}%)...`;
+        }
+      };
+
+      xhr.onload = () => {
+        btn.disabled = false;
+        btn.innerText = '⚡ अपलोड व Repo खोजें';
+        progressContainer.style.display = 'none';
+
+        if (xhr.status === 200) {
+          const resp = JSON.parse(xhr.responseText);
+          log(`✓ वीडियो अपलोड सफल: ${resp.fileName} (${resp.sizeMb})`, 'success');
+          if (resp.detectedRepos && resp.detectedRepos.length > 0) {
+            renderCandidates(resp.detectedRepos, document.getElementById('uploadCandidates'));
+          } else {
+            log(`अपलोड पूर्ण। अब आप वीडियो के नाम से रिपॉजिटरी खोज सकते हैं।`, 'info');
+          }
+        } else {
+          log(`अपलोड एरर: HTTP ${xhr.status}`, 'error');
+        }
+      };
+
+      xhr.onerror = () => {
+        btn.disabled = false;
+        btn.innerText = '⚡ अपलोड व Repo खोजें';
+        progressContainer.style.display = 'none';
+        log('अपलोड में नेटवर्क एरर आया।', 'error');
+      };
+
+      const formData = new FormData();
+      formData.append('video', selectedFile);
+      xhr.send(formData);
+    }
+
+    // 4. Load Repositories for Dashboard
+    async function loadRepos() {
+      const container = document.getElementById('repoList');
+      container.innerHTML = '<div style="text-align: center; padding: 20px; font-size: 13px; color: var(--text-muted);">लोड हो रहा है...</div>';
+
+      try {
+        const res = await fetch('/api/repos');
+        const data = await res.json();
+
+        if (data.success && data.repos && data.repos.length > 0) {
+          document.getElementById('repoCount').innerText = data.repos.length;
+          let html = '';
+
+          data.repos.forEach(r => {
+            html += `
+              <div class="repo-card">
+                <div class="repo-header">
+                  <a href="${r.userRepoUrl || r.url}" target="_blank" class="repo-name">${r.name}</a>
+                  <span class="repo-cat">${r.category || 'General'}</span>
+                </div>
+                <div class="repo-desc">${r.description || 'No description'}</div>
+                <div class="repo-meta">
+                  <div class="repo-links">
+                    <a href="${r.originalUrl || r.url}" target="_blank">🔗 Original</a>
+                    <span>•</span>
+                    <a href="${r.userRepoUrl || r.url}" target="_blank">🚀 My Fork</a>
+                  </div>
+                  <!-- 1-Click Delete Button -->
+                  <button class="btn btn-danger" onclick="confirmDelete('${r.name}')">
+                    🗑️ Delete Repo
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+          container.innerHTML = html;
+        } else {
+          document.getElementById('repoCount').innerText = '0';
+          container.innerHTML = '<div style="text-align: center; padding: 24px; font-size: 13px; color: var(--text-muted);">अभी कोई रिपॉजिटरी नहीं है। नई रिपॉजिटरी क्लोन करने के लिए "Link Scan" या "Video Upload" का उपयोग करें!</div>';
+        }
+      } catch (e) {
+        container.innerHTML = `<div style="color: var(--danger); font-size: 13px; padding: 16px;">लोड एरर: ${e.message}</div>`;
+      }
+    }
+
+    // 5. Delete Repo Flow
+    function confirmDelete(name) {
+      repoToDelete = name;
+      document.getElementById('deleteRepoName').innerText = `Satyenderparihar/${name}`;
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+      repoToDelete = null;
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    async function executeDelete() {
+      if (!repoToDelete) return;
+      const name = repoToDelete;
+      closeDeleteModal();
+
+      log(`[🗑️] रिपॉजिटरी डिलीट की जा रही है: Satyenderparihar/${name}...`, 'info');
+
+      try {
+        const res = await fetch(`/api/repos/${encodeURIComponent(name)}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          log(`✓ ${name} को GitHub और फोन से सफलतापूर्वक डिलीट कर दिया गया!`, 'success');
+          alert(`✓ रिपॉजिटरी ${name} डिलीट हो गई!`);
+          loadRepos();
+        } else {
+          log(`डिलीट एरर: ${data.error}`, 'error');
+          alert(`डिलीट एरर: ${data.error}`);
+        }
+      } catch (e) {
+        log(`डिलीट नेटवर्क एरर: ${e.message}`, 'error');
+      }
+    }
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadRepos();
+    });
+  </script>
+</body>
+</html>

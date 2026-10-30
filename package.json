@@ -1,0 +1,20 @@
+{
+  "name": "video-repo-cloner-app",
+  "version": "1.0.0",
+  "description": "Standalone Android App & Server to Scan, Clone and Manage GitHub repositories from Videos & Reels without limits.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "launch": "bash launch.sh"
+  },
+  "keywords": [
+    "android",
+    "termux",
+    "instagram-reels",
+    "youtube",
+    "repo-cloner",
+    "github"
+  ],
+  "author": "Satyenderparihar",
+  "license": "MIT"
+}

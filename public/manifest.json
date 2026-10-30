@@ -1,0 +1,17 @@
+{
+  "name": "Video Repo Cloner",
+  "short_name": "RepoCloner",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#00f0ff",
+  "description": "Scan Instagram Reels, YouTube videos & Upload files to automatically clone and manage GitHub repositories.",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
