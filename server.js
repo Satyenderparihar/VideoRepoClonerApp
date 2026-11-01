@@ -544,11 +544,11 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
   console.log(`\n======================================================`);
   console.log(`🚀 Video-to-Repo Android App Server Running!`);
   console.log(`📱 Local Access:   http://localhost:${PORT}`);
-  console.log(`🌐 Network Access: http://127.0.0.1:${PORT}`);
+  console.log(`🌐 IPv4 Access:    http://127.0.0.1:${PORT}`);
   console.log(`📁 Projects Path:  ${PROJECTS_DIR}`);
   console.log(`======================================================\n`);
 });

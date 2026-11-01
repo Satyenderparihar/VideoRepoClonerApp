@@ -1,0 +1,38 @@
+{
+  "morluto/rea": {
+    "name": "rea",
+    "owner": "morluto",
+    "fullName": "morluto/rea",
+    "description": "Reverse engineer anything with agents, from app behavior down to native binaries.",
+    "stars": 411155,
+    "topics": [
+      "ai-agents",
+      "binary-analysis",
+      "cli",
+      "decompiler",
+      "mcp",
+      "model-context-protocol",
+      "reverse-engineering",
+      "static-analysis",
+      "agent-skills",
+      "dsh-plugin",
+      "cordis",
+      "dsh",
+      "hopper",
+      "ghidra",
+      "claude-code",
+      "codex",
+      "developer-tools",
+      "llm",
+      "rea",
+      "touhou"
+    ],
+    "url": "https://github.com/morluto/rea",
+    "license": null,
+    "category": "🤖 AI & Machine Learning",
+    "originalUrl": "https://github.com/morluto/rea",
+    "userRepoUrl": "https://github.com/Satyenderparihar/rea",
+    "localPath": "/data/user/0/com.termux/files/home/projects/rea",
+    "clonedAt": "2026-10-30T16:19:33.104Z"
+  }
+}
