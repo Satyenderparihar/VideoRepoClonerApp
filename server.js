@@ -383,8 +383,10 @@ function handleFileUpload(req) {
 
 // HTTP Server
 const server = http.createServer(async (req, res) => {
-  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+  const host = req.headers.host || '127.0.0.1';
+  const parsedUrl = new URL(req.url, `http://${host}`);
   const pathname = parsedUrl.pathname;
+  console.log(`[REQ ${new Date().toLocaleTimeString('en-IN')}] ${req.method} ${pathname} from ${req.socket.remoteAddress}`);
 
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -547,8 +549,16 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`\n======================================================`);
   console.log(`🚀 Video-to-Repo Android App Server Running!`);
-  console.log(`📱 Local Access:   http://localhost:${PORT}`);
-  console.log(`🌐 IPv4 Access:    http://127.0.0.1:${PORT}`);
-  console.log(`📁 Projects Path:  ${PROJECTS_DIR}`);
+  console.log(`📱 Port 5050:  http://127.0.0.1:${PORT}`);
+  console.log(`📱 Port 8080:  http://127.0.0.1:8080`);
+  console.log(`📁 Projects:   ${PROJECTS_DIR}`);
   console.log(`======================================================\n`);
 });
+
+try {
+  const altServer = http.createServer(server.listeners('request')[0]);
+  altServer.listen(8080, () => {
+    console.log(`[✓] Secondary server listening on port 8080`);
+  });
+  altServer.on('error', () => {});
+} catch (e) {}
